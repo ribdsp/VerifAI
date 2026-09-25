@@ -174,6 +174,8 @@ function tally(draws: Draws, loop: Loop, result: Taken['result']): boolean {
     if (draws.plan.basis === 'reference') {
       const agrees = result.reading === draws.plan.reference
       draws.emit({ kind: 'draw', draw, outcome: agrees ? 'agree' : 'disagree' })
+    } else {
+      draws.emit({ kind: 'draw-taken', draw })
     }
     return true
   }

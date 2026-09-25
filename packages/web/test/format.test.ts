@@ -172,17 +172,21 @@ describe('describeEvent', () => {
       tone: 'bad',
       text: 'C1 error: Timed out.',
     })
+    expect(describeEvent({ kind: 'draw-taken', draw: 4 })).toEqual({
+      tone: 'info',
+      text: 'Draw 4 taken, judged once every draw is in',
+    })
   })
 
   it('tones a request by its status', () => {
     const tone = (status: number | null) =>
-      describeEvent({ kind: 'request', probeId: 'A1', status }).tone
+      describeEvent({ kind: 'request', probeId: 'A1', status, tokens: 0 }).tone
 
     expect(tone(200)).toBe('info')
     expect(tone(429)).toBe('warn')
     expect(tone(503)).toBe('bad')
     expect(tone(null)).toBe('bad')
-    expect(describeEvent({ kind: 'request', probeId: 'A1', status: null }).text).toBe(
+    expect(describeEvent({ kind: 'request', probeId: 'A1', status: null, tokens: 0 }).text).toBe(
       'A1 no response',
     )
   })

@@ -44,6 +44,7 @@ const REQUEST_SENT: RunEvent = Object.freeze({
   kind: 'request',
   probeId: 'conformance/test/free',
   status: 200,
+  tokens: 12,
 })
 
 describe('createCheckStore', () => {
@@ -175,7 +176,7 @@ describe('createCheckStore', () => {
     emit(REQUEST_SENT)
     emit(PROBE_FINISHED)
     const status = checks.status(checkId, 1)
-    expect(status?.progress).toMatchObject({ done: 1, requests: 2 })
+    expect(status?.progress).toMatchObject({ done: 1, requests: 2, tokens: 24 })
     expect(status?.events).toEqual([
       { seq: 1, event: REQUEST_SENT },
       { seq: 2, event: PROBE_FINISHED },

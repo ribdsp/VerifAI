@@ -116,7 +116,6 @@ export function isOptions(value: unknown): value is OptionsResponse {
 const PROBE_EVENT_KINDS: ReadonlySet<string> = new Set([
   'probe-started',
   'probe-finished',
-  'request',
   'waiting',
   'probe-error',
 ])
@@ -128,6 +127,16 @@ export function isRunEvent(value: unknown): value is RunEvent {
   }
   if (value.kind === 'draw') {
     return isDrawRecord(value)
+  }
+  if (value.kind === 'draw-taken') {
+    return isCount(value.draw)
+  }
+  if (value.kind === 'request') {
+    return (
+      isString(value.probeId) &&
+      (value.status === null || isCount(value.status)) &&
+      isCount(value.tokens)
+    )
   }
   return PROBE_EVENT_KINDS.has(value.kind) && isString(value.probeId)
 }

@@ -63,6 +63,13 @@ describe('runProbes', () => {
       'request',
       'probe-finished',
     ])
+    // Each request says what it took from the token budget, so progress can count it live.
+    expect(events).toContainEqual({
+      kind: 'request',
+      probeId: 'conformance/test/one',
+      status: 200,
+      tokens: 10,
+    })
   })
 
   it('sends the buyer key by default and none when the run has none', async () => {

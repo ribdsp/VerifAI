@@ -127,6 +127,15 @@
     color: var(--color-ink-faint);
   }
 
+  /* A summary that draws its own ▸, so the browser's marker is hidden. */
+  .disclosure {
+    list-style: none;
+  }
+
+  .disclosure::-webkit-details-marker {
+    display: none;
+  }
+
   .form-line {
     width: 100%;
     background: transparent;
@@ -267,6 +276,9 @@
     color: var(--color-fail);
   }
 
+  .bg-paper {
+    background-color: var(--color-paper);
+  }
   .bg-sheet {
     background-color: var(--color-sheet);
   }

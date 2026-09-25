@@ -69,11 +69,20 @@ export function RunView({ client, created, plannedDraws, onFinal }: RunViewProps
 
   const { progress } = run
   const total = Math.max(progress.total, 1)
-  const hasGroupF = plannedDraws !== undefined || run.draws.length > 0
+  const hasGroupF = plannedDraws !== undefined || run.draws.length > 0 || run.drawsTaken > 0
 
   return (
     <div className="space-y-2">
-      <Section mark="8" title="Running" aside={`Check ${checkId}`} order={0}>
+      <Section
+        mark="8"
+        title="Running"
+        aside={
+          <>
+            Check <span className="normal-case">{checkId}</span>
+          </>
+        }
+        order={0}
+      >
         <div className="space-y-3">
           <div
             role="progressbar"
@@ -110,6 +119,7 @@ export function RunView({ client, created, plannedDraws, onFinal }: RunViewProps
         <Section mark="9" title="Routing-dilution draws" aside="Group F" order={1}>
           <DrawStrip
             draws={run.draws}
+            taken={run.drawsTaken}
             {...(plannedDraws === undefined ? {} : { planned: plannedDraws })}
           />
         </Section>

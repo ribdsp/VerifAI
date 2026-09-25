@@ -36,6 +36,8 @@ export interface RunState {
   readonly lastSeq: number
   readonly nextEvent: number
   readonly draws: readonly DrawRecord[]
+  /** The last draw taken, judged or not: a majority-basis run judges none until all are in. */
+  readonly drawsTaken: number
   readonly report: Report | undefined
   readonly error: ApiError | undefined
 }
@@ -49,6 +51,7 @@ export function initialRunState(checkId: string, total = 0): RunState {
     lastSeq: -1,
     nextEvent: 0,
     draws: [],
+    drawsTaken: 0,
     report: undefined,
     error: undefined,
   }
@@ -71,6 +74,14 @@ function mergeDraws(
   return [...byDraw.values()].sort((a, b) => a.draw - b.draw)
 }
 
+function lastTaken(taken: number, fresh: readonly CheckEvent[]): number {
+  return fresh.reduce(
+    (last, { event }) =>
+      event.kind === 'draw' || event.kind === 'draw-taken' ? Math.max(last, event.draw) : last,
+    taken,
+  )
+}
+
 export function applyStatus(current: RunState, status: CheckStatusResponse): RunState {
   if (status.checkId !== current.checkId || isFinal(current.state)) {
     return current
@@ -87,6 +98,7 @@ export function applyStatus(current: RunState, status: CheckStatusResponse): Run
     lastSeq,
     nextEvent: Math.max(current.nextEvent, status.nextEvent, lastSeq + 1),
     draws: fresh.length === 0 ? current.draws : mergeDraws(current.draws, fresh),
+    drawsTaken: lastTaken(current.drawsTaken, fresh),
     report: status.report ?? current.report,
     error: status.error ?? current.error,
   }

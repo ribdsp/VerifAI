@@ -40,7 +40,7 @@ describe('ReportView', () => {
     expect(html).toContain('Pass')
     expect(html).toContain('✓')
     expect(html).toContain(REPORT.verdict.plainLanguage)
-    expect(html).toContain('82% of a 90% ceiling')
+    expect(html).toContain('82% (at most 90%)')
     expect(html).toContain('The causal capability probes (Group D) did not run.')
   })
 

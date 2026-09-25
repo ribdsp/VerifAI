@@ -110,7 +110,7 @@ describe('conformance/openai/reasoning-matrix', () => {
       identity: { 'matches-claim': -0.4, 'same-vendor-cheaper': 0.3 },
     })
     expect(signals[0]?.plainLanguage).toContain(
-      'OpenAI documents the same answers for the cheaper gpt-5-nano, gpt-5-mini, gpt-5.',
+      'OpenAI documents the answers this endpoint gave for the cheaper gpt-5-nano, gpt-5-mini, gpt-5.',
     )
   })
 

@@ -53,6 +53,10 @@ function drawEvents(events: readonly RunEvent[]): string[] {
   )
 }
 
+function takenEvents(events: readonly RunEvent[]): number[] {
+  return events.flatMap((event) => (event.kind === 'draw-taken' ? [event.draw] : []))
+}
+
 /** The test probe, with its plan changed after it was made. */
 function withPlan(
   change: (plan: Record<string, unknown>) => Record<string, unknown>,
@@ -82,6 +86,8 @@ describe('Group F draws', () => {
     expect(result.signals.map((signal) => signal.signalId)).toEqual(['uniform'])
     expect(drawEvents(events)).toHaveLength(9)
     expect(drawEvents(events)[4]).toBe('5:disagree')
+    // Judged as it lands, so there is nothing to say before the judgement.
+    expect(takenEvents(events)).toEqual([])
     expect(result.evidence.map((entry) => entry.draw)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
   })
 
@@ -103,6 +109,10 @@ describe('Group F draws', () => {
       'agree',
     ])
     expect(drawEvents(events)).toHaveLength(9)
+    // No draw can be judged until the last is in, so each says it was taken meanwhile.
+    expect(takenEvents(events)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    const kinds = events.map((event) => event.kind)
+    expect(kinds.lastIndexOf('draw-taken')).toBeLessThan(kinds.indexOf('draw'))
   })
 
   it('re-runs a lost draw at once, up to a ninth of the draws', async () => {

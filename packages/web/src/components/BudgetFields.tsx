@@ -45,7 +45,7 @@ export function BudgetFields({ options, values, problems, onChange }: BudgetFiel
 
   return (
     <details open={hasProblem} className="group">
-      <summary className="cursor-pointer py-2 font-mono text-sm text-ink-soft select-none">
+      <summary className="disclosure cursor-pointer py-2 font-mono text-sm text-ink-soft select-none">
         <span aria-hidden="true" className="inline-block transition-transform group-open:rotate-90">
           ▸
         </span>{' '}

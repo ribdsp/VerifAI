@@ -46,7 +46,7 @@ export function Verdict({ verdict, claimedModel }: VerdictProps) {
           label="Confidence"
           value={verdict.confidence}
           max={1}
-          text={`${confidence} of a ${ceiling} ceiling`}
+          text={`${confidence} (at most ${ceiling})`}
           marker={{ value: verdict.confidenceCeiling, label: `Confidence ceiling, ${ceiling}` }}
           tone={tone.meter}
         />

@@ -184,7 +184,7 @@ describe('runMatrix', () => {
     ])
     expect(signals[0]?.llr).toEqual({})
     expect(signals[0]?.plainLanguage).toContain(
-      'differently from what Anthropic documents for claude-opus-5-5. Anthropic documents the same answers for the cheaper claude-haiku-4-5-20251001, claude-sonnet-4-5-20250929.',
+      'differently from what Anthropic documents for claude-opus-5-5. Anthropic documents the answers this endpoint gave for the cheaper claude-haiku-4-5-20251001, claude-sonnet-4-5-20250929.',
     )
     expect(signals[0]?.plainLanguage).toContain(ACCEPTANCE_ALONE)
     expect(signals[1]).toMatchObject({

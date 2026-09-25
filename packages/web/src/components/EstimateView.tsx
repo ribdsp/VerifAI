@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { type ApiClient, messageOf } from '../lib/api'
 import { formatCount, groupProbes, groupSkipped, plural } from '../lib/format'
 import { labelOf, PAIRING_LABELS, PROTOCOL_LABELS, VENDOR_LABELS, warningText } from '../lib/labels'
+import { DefinitionList, type DefinitionRow } from './DefinitionList'
 import { Meter } from './Meter'
 import { Notice } from './Notice'
 import { Section } from './Section'
@@ -144,23 +145,14 @@ export function EstimateView({ client, created, onStarted, onCancelled }: Estima
 }
 
 function Particulars({ estimate }: { readonly estimate: CheckEstimate }) {
-  const rows: readonly (readonly [string, string])[] = [
+  const rows: readonly DefinitionRow[] = [
     ['Protocol', labelOf(PROTOCOL_LABELS, estimate.protocol)],
     ['Vendor', labelOf(VENDOR_LABELS, estimate.vendor)],
     ['Pairing', labelOf(PAIRING_LABELS, estimate.pairing)],
     ['Key sent as', labelOf(AUTH_TEXT, estimate.auth)],
     ['Profile', estimate.profile],
   ]
-  return (
-    <dl className="grid grid-cols-[9rem_1fr] gap-x-3 gap-y-1 text-sm">
-      {rows.map(([term, value]) => (
-        <div key={term} className="contents">
-          <dt className="eyebrow pt-0.5">{term}</dt>
-          <dd className="font-mono">{value}</dd>
-        </div>
-      ))}
-    </dl>
-  )
+  return <DefinitionList rows={rows} />
 }
 
 function PlannedTable({ estimate }: { readonly estimate: CheckEstimate }) {
@@ -186,7 +178,9 @@ function PlannedTable({ estimate }: { readonly estimate: CheckEstimate }) {
               <ul className="space-y-0.5">
                 {row.probes.map((probe) => (
                   <li key={probe.id}>
-                    <span className="font-mono text-xs text-ink-faint">{probe.id}</span>{' '}
+                    <span className="font-mono text-xs wrap-anywhere text-ink-faint">
+                      {probe.id}
+                    </span>{' '}
                     {probe.title}
                   </li>
                 ))}

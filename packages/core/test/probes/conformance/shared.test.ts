@@ -146,7 +146,7 @@ describe('rejectionMatrix', () => {
       identity: { 'matches-claim': 0.3, 'same-vendor-cheaper': 0.3 },
     })
     expect(signals[0]?.plainLanguage).toContain(
-      'Toy documents the same answers for the cheaper refusing, so these answers do not tell them apart.',
+      'Toy documents the answers this endpoint gave for the cheaper refusing, so these answers do not tell them apart.',
     )
   })
 

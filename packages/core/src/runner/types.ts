@@ -151,7 +151,15 @@ export type RunEvent =
       readonly reason?: SkipReason
       readonly signals: number
     }
-  | { readonly kind: 'request'; readonly probeId: string; readonly status: number | null }
+  | {
+      readonly kind: 'request'
+      readonly probeId: string
+      readonly status: number | null
+      /** What the request took from the token budget, as the run counts it. */
+      readonly tokens: number
+    }
   | { readonly kind: 'waiting'; readonly probeId: string; readonly waitMs: number }
   | { readonly kind: 'draw'; readonly draw: number; readonly outcome: DrawRecordOutcome }
+  /** A draw read, to be judged once every draw is in: the run's majority is the basis. */
+  | { readonly kind: 'draw-taken'; readonly draw: number }
   | { readonly kind: 'probe-error'; readonly probeId: string; readonly message: string }

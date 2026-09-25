@@ -5,7 +5,7 @@ import {
   PROTOCOL_CHOICES,
   VENDOR_CHOICES,
 } from '@verifai/core'
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { type ApiClient, ApiClientError, type ClientErrorCode, messageOf } from '../lib/api'
 import { formatCount } from '../lib/format'
 import { AUTH_LABELS, labelOf, PROTOCOL_LABELS, VENDOR_LABELS } from '../lib/labels'
@@ -54,9 +54,16 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
   const [apiKey, setApiKey] = useState('')
   const [problems, setProblems] = useState<readonly string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
   const byField = problemsByField(problems)
   const set = <K extends keyof CheckFormValues>(key: K, value: CheckFormValues[K]) =>
     onValuesChange({ ...values, [key]: value })
+
+  useEffect(() => {
+    if (problems.length === 0) return
+    // After a refusal, the reader starts again at the first field that needs them.
+    formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+  }, [problems])
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -78,7 +85,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
   }
 
   return (
-    <form noValidate onSubmit={submit} aria-busy={isSubmitting} className="space-y-2">
+    <form ref={formRef} noValidate onSubmit={submit} aria-busy={isSubmitting} className="space-y-2">
       <Section
         mark="1"
         title="Particulars of the endpoint"
@@ -158,7 +165,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
           )}
         </Field>
         <Field id="vendor" number="1.4" label="Claimed vendor" problems={byField.vendor}>
-          {(describedBy) => (
+          {(describedBy, invalid) => (
             <select
               id="vendor"
               className="form-line"
@@ -170,6 +177,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
                 }
               }}
               aria-describedby={describedBy}
+              aria-invalid={invalid}
             >
               {options.vendors.map((vendor) => (
                 <option key={vendor} value={vendor}>
@@ -180,7 +188,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
           )}
         </Field>
         <Field id="protocol" number="1.5" label="Protocol" problems={byField.protocol}>
-          {(describedBy) => (
+          {(describedBy, invalid) => (
             <select
               id="protocol"
               className="form-line"
@@ -192,6 +200,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
                 }
               }}
               aria-describedby={describedBy}
+              aria-invalid={invalid}
             >
               {options.protocols.map((protocol) => (
                 <option key={protocol} value={protocol}>
@@ -202,7 +211,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
           )}
         </Field>
         <Field id="auth" number="1.6" label="Key header" problems={byField.auth}>
-          {(describedBy) => (
+          {(describedBy, invalid) => (
             <select
               id="auth"
               className="form-line"
@@ -214,6 +223,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
                 }
               }}
               aria-describedby={describedBy}
+              aria-invalid={invalid}
             >
               {options.authChoices.map((auth) => (
                 <option key={auth} value={auth}>

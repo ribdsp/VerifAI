@@ -1,26 +1,12 @@
 import { AUTH_TEXT, type Report } from '@verifai/core'
 import { formatCount, formatDuration, groupSkipped, plural } from '../../lib/format'
 import { labelOf, PAIRING_LABELS, PROTOCOL_LABELS, VENDOR_LABELS } from '../../lib/labels'
-
-type Row = readonly [term: string, value: string, isData?: boolean]
-
-function DefinitionList({ rows }: { readonly rows: readonly Row[] }) {
-  return (
-    <dl className="grid grid-cols-[10rem_1fr] gap-x-3 gap-y-1 text-sm">
-      {rows.map(([term, value, isData = true]) => (
-        <div key={term} className="contents">
-          <dt className="eyebrow pt-0.5">{term}</dt>
-          <dd className={isData ? 'font-mono break-all' : ''}>{value}</dd>
-        </div>
-      ))}
-    </dl>
-  )
-}
+import { DefinitionList, type DefinitionRow } from '../DefinitionList'
 
 /** What was checked: the endpoint by hash, and by name only when the buyer opted in. */
 export function TargetParticulars({ report }: { readonly report: Report }) {
   const { target } = report
-  const rows: readonly Row[] = [
+  const rows: readonly DefinitionRow[] = [
     ['Endpoint hash', target.endpointHash],
     ...(target.endpoint === null ? [] : [['Endpoint', target.endpoint] as const]),
     ['Claimed model', target.claimedModel],
@@ -38,7 +24,7 @@ export function TargetParticulars({ report }: { readonly report: Report }) {
 /** How the run was made, so a second run can be compared with this one. */
 export function RunParticulars({ report }: { readonly report: Report }) {
   const { run, signature } = report
-  const rows: readonly Row[] = [
+  const rows: readonly DefinitionRow[] = [
     ['Started', run.startedAt],
     ['Finished', run.finishedAt],
     ['Profile', run.profile],

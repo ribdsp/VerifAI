@@ -17,8 +17,9 @@ const FILLS = { ink: 'bg-ink', pass: 'bg-pass', caution: 'bg-caution', fail: 'bg
 export function Meter({ label, value, max, text, marker, tone = 'ink' }: MeterProps) {
   const filled = shareOf(value, max)
   return (
-    <div className="grid grid-cols-[9rem_1fr_auto] items-center gap-3 text-sm">
-      <span className="eyebrow">{label}</span>
+    // On a narrow screen the label takes its own line, so the bar keeps its width.
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 text-sm sm:grid-cols-[9rem_1fr_auto]">
+      <span className="eyebrow col-span-2 sm:col-span-1">{label}</span>
       {/* The bar repeats the text beside it, so assistive technology reads the text alone. */}
       <div aria-hidden="true" className="relative h-3 border border-ink bg-sheet">
         <div

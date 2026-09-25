@@ -37,7 +37,12 @@ export function ReportView({ client, checkId, report, onRestart }: ReportViewPro
         <Section
           mark="R.2"
           title="Routing dilution"
-          aside={`ε ${formatInterval(verdict.epsilon.interval)}`}
+          aside={
+            // ε is data: set in capitals, it would read as the letter E.
+            <>
+              <span className="normal-case">ε</span> {formatInterval(verdict.epsilon.interval)}
+            </>
+          }
           order={2}
         >
           <EpsilonBlock epsilon={verdict.epsilon} />
@@ -55,7 +60,7 @@ export function ReportView({ client, checkId, report, onRestart }: ReportViewPro
         order={4}
       >
         <details className="group">
-          <summary className="cursor-pointer py-1 font-mono text-sm text-ink-soft select-none">
+          <summary className="disclosure cursor-pointer py-1 font-mono text-sm text-ink-soft select-none">
             <span
               aria-hidden="true"
               className="inline-block transition-transform group-open:rotate-90"

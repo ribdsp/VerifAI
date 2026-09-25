@@ -278,7 +278,12 @@ export function createSession(options: SessionOptions): Session {
     tokens += cost
     const result = await transport.send(wire)
     await record(wire, result, sentAtMs, send, retry)
-    emit({ kind: 'request', probeId: send.probeId, status: result.ok ? result.status : null })
+    emit({
+      kind: 'request',
+      probeId: send.probeId,
+      status: result.ok ? result.status : null,
+      tokens: cost,
+    })
     if (!result.ok) {
       reached ||= result.sent
       return failureAttempt(result)

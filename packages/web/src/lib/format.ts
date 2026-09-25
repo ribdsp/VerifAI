@@ -161,6 +161,8 @@ export function describeEvent(event: RunEvent): EventLine {
       return { tone: 'info', text: `${event.probeId} waiting ${formatDuration(event.waitMs)}` }
     case 'draw':
       return { tone: DRAW_TONES[event.outcome], text: `Draw ${event.draw}: ${event.outcome}` }
+    case 'draw-taken':
+      return { tone: 'info', text: `Draw ${event.draw} taken, judged once every draw is in` }
     case 'probe-error':
       return { tone: 'bad', text: `${event.probeId} error: ${event.message}` }
   }

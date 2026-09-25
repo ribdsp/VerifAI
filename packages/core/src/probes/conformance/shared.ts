@@ -381,7 +381,7 @@ function substituteSentence<M extends MatrixModel>(
     return `No cheaper ${vendor.family} model is documented to answer the same way.`
   }
   const tie = isConsistent(claim) ? ', so these answers do not tell them apart' : ''
-  return `${vendor.name} documents the same answers for the cheaper ${namesOf(substitutes)}${tie}.`
+  return `${vendor.name} documents the answers this endpoint gave for the cheaper ${namesOf(substitutes)}${tie}.`
 }
 
 function silenceSentence<M extends MatrixModel>(

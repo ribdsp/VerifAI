@@ -1,4 +1,6 @@
 import { readFile } from 'node:fs/promises'
+import { createServer } from 'node:http'
+import type { AddressInfo } from 'node:net'
 import { expect, type Page, test } from '@playwright/test'
 import { type Daemon, startDaemon } from './daemon.js'
 import { type FakeUpstream, startFakeUpstream } from './fake-upstream.js'
@@ -37,6 +39,40 @@ test.afterAll(async () => {
   await Promise.all([daemon?.stop(), upstream?.close()])
 })
 
+/** Fills the form for a check of the loopback fake, the private-address opt-in ticked. */
+async function fillForm(page: Page, profile: 'quick' | 'standard'): Promise<void> {
+  await page.getByLabel(/Endpoint URL$/).fill(upstream.baseUrl)
+  await page.getByLabel(/API key$/).fill(API_KEY)
+  await page.getByLabel(/Model$/).fill(MODEL)
+  await page.getByLabel(/Protocol$/).selectOption('anthropic-messages')
+  await page.locator(`#profile-${profile}`).check()
+  await page.getByText('Override the profile’s budget, or allow private addresses').click()
+  await page.getByLabel('Allow private and loopback addresses').check()
+}
+
+/** What in the page reaches past the right edge of the screen, by tag and text. */
+async function widerThanScreen(page: Page): Promise<readonly string[]> {
+  const edge = await page.locator('html').evaluate((html) => html.clientWidth)
+  return page
+    .locator('main *')
+    .evaluateAll(
+      (elements, limit) =>
+        elements
+          .filter((element) => element.getBoundingClientRect().right > limit + 0.5)
+          .map((element) => `${element.tagName} ${(element.textContent ?? '').slice(0, 40)}`),
+      edge,
+    )
+}
+
+/** Each disclosure draws its own ▸, so the browser's marker must not draw a second. */
+async function expectOneMarkerEach(page: Page): Promise<void> {
+  const summaries = await page.locator('summary').all()
+  expect(summaries.length).toBeGreaterThan(0)
+  for (const summary of summaries) {
+    await expect(summary).toHaveCSS('list-style-type', 'none')
+  }
+}
+
 /** The key is nowhere the page keeps anything: its markup, its fields, its storage, its address. */
 async function expectKeyGone(page: Page): Promise<void> {
   expect(await page.content()).not.toContain(API_KEY)
@@ -73,13 +109,8 @@ test('runs a check from the form to the report, and keeps the key out of both', 
   test.setTimeout(RUN_MS * 2)
   await page.goto(daemon.link)
 
-  await page.getByLabel(/Endpoint URL$/).fill(upstream.baseUrl)
-  await page.getByLabel(/API key$/).fill(API_KEY)
-  await page.getByLabel(/Model$/).fill(MODEL)
-  await page.getByLabel(/Protocol$/).selectOption('anthropic-messages')
-  await page.locator('#profile-quick').check()
-  await page.getByText('Override the profile’s budget, or allow private addresses').click()
-  await page.getByLabel('Allow private and loopback addresses').check()
+  await fillForm(page, 'quick')
+  await expectOneMarkerEach(page)
   await page.getByRole('button', { name: 'Prepare estimate' }).click()
 
   await expect(page.getByRole('heading', { name: /Estimate/ })).toBeVisible()
@@ -109,4 +140,66 @@ test('runs a check from the form to the report, and keeps the key out of both', 
 
   await page.getByRole('button', { name: 'New check' }).click()
   await expect(page.getByLabel(/API key$/)).toHaveValue('')
+})
+
+test('puts the cursor on the endpoint when the daemon refuses it', async ({ page }) => {
+  await page.goto(daemon.link)
+
+  // Loopback, without the per-run opt-in.
+  await page.getByLabel(/Endpoint URL$/).fill(upstream.baseUrl)
+  await page.getByLabel(/Model$/).fill(MODEL)
+  await page.getByRole('button', { name: 'Prepare estimate' }).click()
+
+  const endpoint = page.getByLabel(/Endpoint URL$/)
+  await expect(endpoint).toHaveAttribute('aria-invalid', 'true')
+  await expect(endpoint).toBeFocused()
+})
+
+test('puts the cursor on the protocol when none can be told apart', async ({ page }) => {
+  // Every path is absent, so detection has nothing to go on.
+  const absent = createServer((_request, response) => {
+    response.writeHead(404).end()
+  })
+  await new Promise<void>((resolve) => absent.listen(0, '127.0.0.1', resolve))
+  try {
+    const { port } = absent.address() as AddressInfo
+    await page.goto(daemon.link)
+    await page.getByLabel(/Endpoint URL$/).fill(`http://127.0.0.1:${port}/v1`)
+    await page.getByLabel(/Model$/).fill(MODEL)
+    await page.getByText('Override the profile’s budget, or allow private addresses').click()
+    await page.getByLabel('Allow private and loopback addresses').check()
+    await page.getByRole('button', { name: 'Prepare estimate' }).click()
+
+    const protocol = page.getByLabel(/Protocol$/)
+    await expect(protocol).toHaveAttribute('aria-invalid', 'true')
+    await expect(protocol).toBeFocused()
+  } finally {
+    absent.closeAllConnections()
+    await new Promise((done) => absent.close(done))
+  }
+})
+
+test.describe('on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })
+
+  test('fits the estimate and the report to the screen', async ({ page }) => {
+    test.setTimeout(RUN_MS * 2)
+    await page.goto(daemon.link)
+
+    await fillForm(page, 'standard')
+    await page.getByRole('button', { name: 'Prepare estimate' }).click()
+    await expect(page.getByRole('heading', { name: /Estimate/ })).toBeVisible()
+    expect(await widerThanScreen(page)).toEqual([])
+
+    await page.getByRole('button', { name: 'Start the check' }).click()
+    await expect(page.getByRole('heading', { name: /Routing dilution/ })).toBeVisible({
+      timeout: RUN_MS,
+    })
+    expect(await widerThanScreen(page)).toEqual([])
+    await expectOneMarkerEach(page)
+    // ε is data: set in capitals, it would read as the letter E.
+    await expect(page.locator('#section-R-2 + .eyebrow')).toHaveText(/^ε /, {
+      useInnerText: true,
+    })
+  })
 })

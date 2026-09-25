@@ -92,7 +92,9 @@ function progressAfter(progress: CheckProgress, event: RunEvent): CheckProgress 
   if (event.kind === 'probe-finished') {
     return { ...progress, done: progress.done + 1 }
   }
-  return event.kind === 'request' ? { ...progress, requests: progress.requests + 1 } : progress
+  return event.kind === 'request'
+    ? { ...progress, requests: progress.requests + 1, tokens: progress.tokens + event.tokens }
+    : progress
 }
 
 export function createCheckStore(options: StoreOptions = {}): CheckStore {

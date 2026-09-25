@@ -61,12 +61,18 @@ describe('isEstimate and isOptions', () => {
 describe('isRunEvent', () => {
   it('knows draws and probe events', () => {
     expect(isRunEvent({ kind: 'draw', draw: 1, outcome: 'agree' })).toBe(true)
-    expect(isRunEvent({ kind: 'request', probeId: 'A1', status: null })).toBe(true)
+    expect(isRunEvent({ kind: 'request', probeId: 'A1', status: null, tokens: 0 })).toBe(true)
+    expect(isRunEvent({ kind: 'draw-taken', draw: 3 })).toBe(true)
   })
 
   it('refuses unknown kinds, bad draws and probe events without a probe', () => {
     expect(isRunEvent({ kind: 'telemetry', probeId: 'A1' })).toBe(false)
     expect(isRunEvent({ kind: 'draw', draw: 1, outcome: 'maybe' })).toBe(false)
+    expect(isRunEvent({ kind: 'draw-taken', draw: -1 })).toBe(false)
+    expect(isRunEvent({ kind: 'draw-taken', draw: '3' })).toBe(false)
+    expect(isRunEvent({ kind: 'request', probeId: 'A1', status: 200 })).toBe(false)
+    expect(isRunEvent({ kind: 'request', probeId: 'A1', status: 200, tokens: -5 })).toBe(false)
+    expect(isRunEvent({ kind: 'request', probeId: 'A1', status: '200', tokens: 0 })).toBe(false)
     expect(isRunEvent({ kind: 'waiting', waitMs: 10 })).toBe(false)
     expect(isRunEvent('draw')).toBe(false)
   })

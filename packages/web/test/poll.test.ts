@@ -20,7 +20,7 @@ function drawEvent(seq: number, draw: number, outcome: 'agree' | 'disagree' | 'l
 }
 
 function requestEvent(seq: number) {
-  return checkEvent(seq, { kind: 'request', probeId: 'A1', status: 200 })
+  return checkEvent(seq, { kind: 'request', probeId: 'A1', status: 200, tokens: 0 })
 }
 
 /** A client that answers each status call with the next item, throwing any error. */
@@ -93,6 +93,21 @@ describe('applyStatus', () => {
       { draw: 1, outcome: 'agree' },
       { draw: 2, outcome: 'lost' },
     ])
+  })
+
+  it('counts the draws taken before any of them can be judged', () => {
+    const taken = (seq: number, draw: number) => checkEvent(seq, { kind: 'draw-taken', draw })
+    expect(initialRunState(CHECK_ID).drawsTaken).toBe(0)
+
+    const first = applyStatus(
+      initialRunState(CHECK_ID),
+      statusOf({ events: [taken(0, 2), taken(1, 1)] }),
+    )
+    const second = applyStatus(first, statusOf({ events: [drawEvent(2, 3, 'lost')] }))
+
+    expect(first.drawsTaken).toBe(2)
+    expect(second.drawsTaken).toBe(3)
+    expect(second.draws).toEqual([{ draw: 3, outcome: 'lost' }])
   })
 
   it('keeps only the most recent events in the log', () => {
