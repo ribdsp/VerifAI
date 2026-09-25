@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+
+    // The portable half of the monorepo. `@verifai/core` and
+    // `@verifai/fingerprints` have to run unchanged in Node, Bun, Deno and the
+    // browser, and this file is the only thing that enforces it.
+    //
+    // `types: []` is the load-bearing line. With the default (every package in
+    // `node_modules/@types`), `@types/node` supplies `process`, `Buffer`,
+    // `setImmediate` *and* its own `fetch`/`Response` declarations - so core
+    // would be checked against undici's shapes and a Node-only member like
+    // `Response.body` as a Node stream, or a `dispatcher` in `RequestInit`,
+    // would typecheck here and then fail in a browser. That is the exact
+    // inverse of the guarantee the package advertises.
+    "types": [],
+
+    // `WebWorker` rather than `DOM` is deliberate. It supplies the platform
+    // surface core is allowed to touch - `fetch`, `Request`/`Response`/
+    // `Headers`, `AbortController`, `TextEncoder`, `URL`, `ReadableStream`,
+    // `crypto.subtle`, `performance`, timers - while omitting `document`,
+    // `window` and, most importantly for this project, `localStorage` and
+    // `sessionStorage`. API keys must never be persisted, so a core module that
+    // reaches for web storage should not compile.
+    //
+    // `WebWorker.Iterable` is needed to iterate `response.headers`, which the
+    // Phase 1 header-capture transport does on every request.
+    //
+    // `WebWorker.AsyncIterable` is omitted on purpose: `for await` over a
+    // `ReadableStream` is not available in every browser, so the SSE parser
+    // must use `.getReader()`. Leaving the lib out makes the typechecker say so.
+    "lib": ["ES2023", "WebWorker", "WebWorker.Iterable"],
+
+    // Core depends on the fingerprint catalogue; both halves are checked from
+    // source, so the import must not resolve to a stale `dist/`.
+    "paths": {
+      "@verifai/fingerprints": ["./packages/fingerprints/src/index.ts"]
+    }
+  },
+  // Source only. The test directories legitimately use `node:fs` to load
+  // fixtures and are checked by `tsconfig.json` instead.
+  "include": ["packages/core/src/**/*.ts", "packages/fingerprints/src/**/*.ts"]
+}

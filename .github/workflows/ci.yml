@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A second push to the same branch makes the first run's result irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Oldest supported and current. The core is meant to run anywhere, so a
+        # syntax or API assumption that needs Node 24 must fail here, not in a
+        # user's terminal.
+        node: ['20.12', '24']
+
+    steps:
+      # Pinned to full commit SHAs: a tag can be moved to point at other code,
+      # a SHA cannot. The comment names the tag the SHA was resolved from.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Nothing here pushes, so the token is not left behind in .git/config for
+          # later steps - including dependency code - to read.
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      # No lifecycle scripts: this repository audits untrusted endpoints, so it
+      # does not execute arbitrary postinstall code from the dependency tree.
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - run: pnpm run lint
+
+      - run: pnpm run typecheck
+
+      - run: pnpm run test
+        if: matrix.node != '24'
+
+      # The same suite, instrumented, on one leg of the matrix only. Thresholds
+      # are enforced from Phase 1 onwards; see vitest.config.ts.
+      - run: pnpm run test:coverage
+        if: matrix.node == '24'
+
+      - run: pnpm run build
+
+      # The binary a buyer runs, run: bin.ts wires the real process into `main`
+      # and nothing else exercises it. Skipped by the suites above, which run
+      # before there is a build.
+      - run: pnpm exec vitest run test/built-cli.test.ts
+        env:
+          VERIFAI_REQUIRE_BUILD: '1'
+
+      # The web UI in a real browser, against the build above: form, estimate,
+      # run, report, and where the key and the session token must not stay. One
+      # leg only - the browser download is the slow part, and the page does not
+      # change with the Node version.
+      - run: pnpm exec playwright install --with-deps chromium
+        if: matrix.node == '24'
+
+      - run: pnpm run test:e2e
+        if: matrix.node == '24'
+
+      # A trace holds every request the page made, bodies and all. That is safe
+      # to publish only because the key is a made-up one and the endpoint is a
+      # fake on loopback: never give the specs a real key or a real endpoint.
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: failure() && matrix.node == '24'
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7

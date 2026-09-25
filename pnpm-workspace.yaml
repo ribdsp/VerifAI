@@ -1,0 +1,33 @@
+packages:
+  - packages/*
+
+# Single source of truth for dependency versions across the workspace.
+# Packages reference these with `"catalog:"` instead of a literal range, so a
+# version bump happens in exactly one place.
+catalog:
+  # Toolchain
+  '@biomejs/biome': ^2.5.14
+  '@types/node': ^26.6.2
+  tsdown: ^0.23.0
+  typescript: ^7.0.2
+  vitest: ^5.0.1
+  '@vitest/coverage-v8': ^5.0.1
+  '@playwright/test': ^1.63.0
+
+  # Runtime
+  valibot: ^1.5.0
+  gpt-tokenizer: ^4.0.0
+
+  # CLI
+  '@clack/prompts': ^1.8.1
+  picocolors: ^1.1.1
+
+  # Web UI (build-time only; the CLI serves the built files)
+  vite: ^8.3.0
+  react: ^19.3.0
+  react-dom: ^19.3.0
+  '@types/react': ^19.3.0
+  '@types/react-dom': ^19.3.0
+  '@vitejs/plugin-react': ^6.1.1
+  tailwindcss: ^4.3.3
+  '@tailwindcss/vite': ^4.3.3

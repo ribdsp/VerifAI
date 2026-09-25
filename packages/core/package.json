@@ -1,0 +1,29 @@
+{
+  "name": "@verifai/core",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Runtime-agnostic probe, scoring and reporting engine for VerifAI",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@verifai/fingerprints": "workspace:*",
+    "gpt-tokenizer": "catalog:",
+    "valibot": "catalog:"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  }
+}

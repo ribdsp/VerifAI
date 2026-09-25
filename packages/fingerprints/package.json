@@ -1,0 +1,24 @@
+{
+  "name": "@verifai/fingerprints",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Versioned reference fingerprint database for VerifAI (data only, no detection logic)",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    // The Node-only half: `@verifai/node`, the CLI, every test directory, and
+    // the build configs.
+    // `@verifai/core` and `@verifai/fingerprints` sources are checked a second
+    // time by `tsconfig.portable.json` with `types: []`, and that pass - not
+    // this one - is what enforces their cross-runtime guarantee. Both run in
+    // `pnpm run typecheck`.
+    "lib": ["ES2023"],
+    "types": ["node"],
+    // TypeScript 7 removed `baseUrl`; `paths` targets are resolved relative to
+    // this file, so they must be written with a leading `./`.
+    "paths": {
+      "@verifai/core": ["./packages/core/src/index.ts"],
+      "@verifai/core/*": ["./packages/core/src/*"],
+      "@verifai/fingerprints": ["./packages/fingerprints/src/index.ts"],
+      "@verifai/fingerprints/*": ["./packages/fingerprints/src/*"],
+      "@verifai/node": ["./packages/node/src/index.ts"],
+      "@verifai/node/*": ["./packages/node/src/*"]
+    }
+  },
+  "include": [
+    "packages/core/src/**/*.ts",
+    "packages/core/test/**/*.ts",
+    "packages/fingerprints/src/**/*.ts",
+    "packages/fingerprints/test/**/*.ts",
+    "packages/node/src/**/*.ts",
+    "packages/node/test/**/*.ts",
+    "packages/cli/src/**/*.ts",
+    "packages/cli/test/**/*.ts",
+    "e2e/**/*.ts",
+    "test/**/*.ts",
+    "*.config.ts",
+    // Without this the per-package build configs are invisible to `tsc`, and a
+    // misspelled *key* in a tsdown config is silently ignored at build time -
+    // so `platfrom: 'neutral'` would disable the cross-runtime guard with no
+    // diagnostic from any gate in the pipeline.
+    "packages/*/*.config.ts"
+  ]
+}

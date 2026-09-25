@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    // A browser bundle: the DOM, and nothing from Node. The API key is held in
+    // component state only, so web storage stays reachable to the typechecker
+    // but is banned by review and by `test/no-key-persistence.test.ts`.
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@verifai/core": ["../core/src/index.ts"],
+      "@verifai/core/*": ["../core/src/*"],
+      "@verifai/fingerprints": ["../fingerprints/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"]
+}

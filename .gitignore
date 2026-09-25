@@ -1,0 +1,37 @@
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# Local editor state
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Never commit credentials or captured traffic that has not been redacted.
+.env
+.env.*
+!.env.example
+*.env
+*.env.txt
+*.key
+*.pem
+secrets/
+captures/
+
+# Captured traffic is deny-by-default, the same way `.env` above is. Listing the
+# unsafe names instead (`*.raw.har`, `*.unredacted.*`) fails in the dangerous
+# direction: a plain `capture.har` straight off the wire, still carrying an
+# `authorization` header, would not have matched any of them.
+#
+# Only the explicitly-redacted form is committable, which makes the redaction
+# step visible in the filename. `verifai record` (Phase 7) must emit this suffix.
+*.har
+!*.redacted.har
+
+# Local VerifAI state (signing keys, synced registry, report output)
+.verifai/

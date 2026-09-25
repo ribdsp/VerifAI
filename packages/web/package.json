@@ -1,0 +1,23 @@
+{
+  "name": "@verifai/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The local web UI for VerifAI, served by `verifai web` from the CLI package",
+  "license": "MIT",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@verifai/core": "workspace:*",
+    "@vitejs/plugin-react": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}
