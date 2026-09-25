@@ -46,6 +46,18 @@ describe('dilution/differential-count', () => {
     }
   })
 
+  it('pairs the last battery string with the first', () => {
+    const last = BATTERY.length - 1
+    // A one-character nonce chooses the pair starting at its code point, round the battery.
+    const printable = Array.from({ length: 94 }, (_unused, offset) =>
+      String.fromCodePoint(33 + offset),
+    )
+    const nonce = printable.find((char) => (char.codePointAt(0) ?? 0) % BATTERY.length === last)
+
+    expect(nonce).toBeDefined()
+    expect(testString(nonce ?? '')).toBe(`${BATTERY[last]?.text} ${BATTERY[0]?.text}`)
+  })
+
   it('numbers each prompt and appends the test string to the second', () => {
     expect(basePrompt('n0nce7test', 3)).toContain('Draw 3, reference n0nce7test.')
     expect(testPrompt('n0nce7test', 3)).toBe(

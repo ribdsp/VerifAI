@@ -28,7 +28,7 @@ import { OPENAI_RESPONSES_INPUT_TOKENS } from '../../sources/openai-accounting.j
 import { reportedInput } from '../accounting/shared.js'
 import { MAX_OUTPUT_FLOOR, sendAtOutputFloor } from '../output-floor.js'
 import { estimateTokens, generationOf, isSuccess } from '../shared.js'
-import { BATTERY, type BatteryItem } from '../tokenizer/shared.js'
+import { BATTERY } from '../tokenizer/shared.js'
 import type { DilutionPlan, DilutionProbe, ProbeContext, Signal } from '../types.js'
 
 /** Each draw's two requests. */
@@ -36,11 +36,18 @@ const REQUESTS_PER_DRAW = 2
 
 const SEPARATOR = '\n\n'
 
+/** The battery string at `index`, counted round the battery. */
+function batteryText(index: number): string {
+  const item = BATTERY[index % BATTERY.length]
+  if (item === undefined) {
+    throw new TypeError('The tokenizer battery is empty')
+  }
+  return item.text
+}
+
 /** Two neighbouring battery strings from `start`. */
 function pairAt(start: number): string {
-  return [start, start + 1]
-    .map((index) => (BATTERY[index % BATTERY.length] as BatteryItem).text)
-    .join(' ')
+  return [start, start + 1].map(batteryText).join(' ')
 }
 
 /** The test string of a run: a pair the nonce chooses, so it is not the same every run. */
@@ -113,9 +120,9 @@ async function prepare(context: ProbeContext): Promise<DilutionPlan> {
   return Object.freeze<DilutionPlan>({
     basis: 'mode',
     measures: 'the input tokens a fixed test string adds to a prompt',
-    read: (draw) => {
+    read: (drawContext) => {
       draws += 1
-      return reading(draw, draws)
+      return reading(drawContext, draws)
     },
     // Uniform or not, which model the draws reached is read from the other groups.
     conclude: () => NO_SIGNALS,
