@@ -11,6 +11,7 @@ import {
   AUTH_TEXT,
   type CheckEstimate,
   ESTIMATE_WARNING_TEXT,
+  type EstimateWarningText,
   profileDefinition,
   SKIP_REASON_TEXT,
   type SkipReason,
@@ -49,11 +50,27 @@ function skippedLines(estimate: CheckEstimate): string[] {
   return [...counts].map(([reason, count]) => `  - ${count} ${SKIP_REASON_TEXT[reason]}`)
 }
 
-function warningLines(estimate: CheckEstimate): string[] {
+/**
+ * The warnings that change what the buyer should do, then the notes: two
+ * headed lists, as the web UI shows them apart, so no bullet has to carry the
+ * difference.
+ */
+function warningSections(estimate: CheckEstimate): string[] {
   const texts = estimate.warnings.map((code) => ESTIMATE_WARNING_TEXT[code])
-  // The warnings that change what the buyer should do come first.
-  const ordered = [...texts.filter((t) => t.prominent), ...texts.filter((t) => !t.prominent)]
-  return ordered.map((t) => `  ${t.prominent ? '!' : '-'} ${t.title}: ${t.text}`)
+  const section = (heading: string, entries: readonly EstimateWarningText[]): string[] =>
+    entries.length === 0
+      ? []
+      : ['', heading, ...entries.map((entry) => `  - ${entry.title}: ${entry.text}`)]
+  return [
+    ...section(
+      'Warnings:',
+      texts.filter((entry) => entry.prominent),
+    ),
+    ...section(
+      'Notes:',
+      texts.filter((entry) => !entry.prominent),
+    ),
+  ]
 }
 
 export function estimateText(estimate: CheckEstimate, model: string): string {
@@ -83,10 +100,9 @@ export function estimateText(estimate: CheckEstimate, model: string): string {
       : []),
   ]
   const skipped = skippedLines(estimate)
-  const warnings = warningLines(estimate)
   return [
     ...lines,
     ...(skipped.length === 0 ? [] : ['', 'Left out:', ...skipped]),
-    ...(warnings.length === 0 ? [] : ['', 'Warnings:', ...warnings]),
+    ...warningSections(estimate),
   ].join('\n')
 }

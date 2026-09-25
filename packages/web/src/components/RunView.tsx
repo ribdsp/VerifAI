@@ -17,7 +17,7 @@ interface RunViewProps {
 }
 
 const TONE_MARKS: Readonly<Record<EventLine['tone'], { mark: string; className: string }>> = {
-  info: { mark: '·', className: 'text-ink-faint' },
+  info: { mark: '', className: 'text-ink-faint' },
   ok: { mark: '✓', className: 'text-pass' },
   warn: { mark: '!', className: 'text-caution' },
   bad: { mark: '✕', className: 'text-fail' },
@@ -74,7 +74,6 @@ export function RunView({ client, created, plannedDraws, onFinal }: RunViewProps
   return (
     <div className="space-y-2">
       <Section
-        mark="8"
         title="Running"
         aside={
           <>
@@ -116,7 +115,7 @@ export function RunView({ client, created, plannedDraws, onFinal }: RunViewProps
       </Section>
 
       {hasGroupF ? (
-        <Section mark="9" title="Routing-dilution draws" aside="Group F" order={1}>
+        <Section title="Routing-dilution draws" aside="Group F" order={1}>
           <DrawStrip
             draws={run.draws}
             taken={run.drawsTaken}
@@ -125,7 +124,7 @@ export function RunView({ client, created, plannedDraws, onFinal }: RunViewProps
         </Section>
       ) : null}
 
-      <Section mark="10" title="Log" aside="Newest first" order={2}>
+      <Section title="Log" aside="Newest first" order={2}>
         <EventLog events={run.log} />
       </Section>
 

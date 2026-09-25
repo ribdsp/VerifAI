@@ -28,37 +28,30 @@ export function ReportView({ client, checkId, report, onRestart }: ReportViewPro
       <Verdict verdict={verdict} claimedModel={report.target.claimedModel} />
 
       <div className="pt-6">
-        <Section mark="R.1" title="Five axes" order={1}>
+        <Section title="Five axes" order={1}>
           <Axes verdict={verdict} />
         </Section>
       </div>
 
       {verdict.epsilon === null ? null : (
         <Section
-          mark="R.2"
           title="Routing dilution"
-          aside={
-            // ε is data: set in capitals, it would read as the letter E.
-            <>
-              <span className="normal-case">ε</span> {formatInterval(verdict.epsilon.interval)}
-            </>
-          }
+          aside={`Disagreement rate ${formatInterval(verdict.epsilon.interval)}`}
           order={2}
         >
           <EpsilonBlock epsilon={verdict.epsilon} />
         </Section>
       )}
 
-      <Section mark="R.3" title="Posteriors" aside="As stored" order={3}>
+      <Section title="Posteriors" aside="As stored" order={3}>
+        <p className="mb-4 max-w-prose text-sm text-ink-soft">
+          How likely each finding is, given the evidence. The finding the report settles on is in
+          bold.
+        </p>
         <PosteriorBars posteriors={report.posteriors} verdict={verdict} />
       </Section>
 
-      <Section
-        mark="R.4"
-        title="Evidence"
-        aside={plural(report.signals.length, 'signal')}
-        order={4}
-      >
+      <Section title="Evidence" aside={plural(report.signals.length, 'signal')} order={4}>
         <details className="group">
           <summary className="disclosure cursor-pointer py-1 font-mono text-sm text-ink-soft select-none">
             <span
@@ -75,24 +68,19 @@ export function ReportView({ client, checkId, report, onRestart }: ReportViewPro
         </details>
       </Section>
 
-      <Section mark="R.5" title="Target" order={5}>
+      <Section title="Target" order={5}>
         <TargetParticulars report={report} />
       </Section>
 
-      <Section mark="R.6" title="Run" order={6}>
+      <Section title="Run" order={6}>
         <RunParticulars report={report} />
       </Section>
 
-      <Section
-        mark="R.7"
-        title="Probes left out"
-        aside={plural(report.skipped.length, 'probe')}
-        order={7}
-      >
+      <Section title="Probes left out" aside={plural(report.skipped.length, 'probe')} order={7}>
         <SkippedProbes report={report} />
       </Section>
 
-      <Section mark="R.8" title="Copies" order={8}>
+      <Section title="Copies" order={8}>
         <Downloads client={client} checkId={checkId} />
       </Section>
 

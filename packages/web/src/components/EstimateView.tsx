@@ -61,7 +61,7 @@ export function EstimateView({ client, created, onStarted, onCancelled }: Estima
         </div>
       )}
 
-      <Section mark="4" title="Estimate" aside="Nothing has been sent yet" order={0}>
+      <Section title="Estimate" aside="Nothing has been sent yet" order={0}>
         <Particulars estimate={estimate} />
         <div className="mt-4 space-y-2">
           <Meter
@@ -82,28 +82,18 @@ export function EstimateView({ client, created, onStarted, onCancelled }: Estima
         </p>
       </Section>
 
-      <Section
-        mark="5"
-        title="Probes planned"
-        aside={plural(estimate.probes.length, 'probe')}
-        order={1}
-      >
+      <Section title="Probes planned" aside={plural(estimate.probes.length, 'probe')} order={1}>
         <PlannedTable estimate={estimate} />
       </Section>
 
       {estimate.skipped.length === 0 ? null : (
-        <Section
-          mark="6"
-          title="Probes left out"
-          aside={plural(estimate.skipped.length, 'probe')}
-          order={2}
-        >
+        <Section title="Probes left out" aside={plural(estimate.skipped.length, 'probe')} order={2}>
           <SkippedTable estimate={estimate} />
         </Section>
       )}
 
       {other.length === 0 ? null : (
-        <Section mark="7" title="Notes" order={3}>
+        <Section title="Notes" order={3}>
           <ul className="space-y-2">
             {other.map((warning) => (
               <li key={warning.code}>

@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest'
 import { App } from '../src/App'
 import { CheckForm } from '../src/components/CheckForm'
 import { EstimateView } from '../src/components/EstimateView'
+import { Field } from '../src/components/Field'
 import { FinalView } from '../src/components/FinalView'
 import { ReportView } from '../src/components/ReportView'
 import { createApiClient } from '../src/lib/api'
@@ -121,6 +122,38 @@ describe('ReportView', () => {
     expect(html).toContain('Unsigned')
   })
 
+  it('heads each section with its title alone, each labelled by its own heading', () => {
+    const html = reportMarkup()
+    const labelled = [...html.matchAll(/aria-labelledby="([^"]+)"/g)].map((match) => match[1])
+
+    expect(html).not.toContain('§')
+    expect(labelled.length).toBeGreaterThan(0)
+    for (const id of labelled) {
+      expect(html).toContain(`id="${id}"`)
+    }
+    expect(new Set(labelled).size).toBe(labelled.length)
+  })
+
+  it('names the routing-dilution figure in words, not as a Greek letter', () => {
+    const html = reportMarkup()
+
+    expect(html).not.toContain('ε')
+    expect(html).toContain('Disagreement rate 0.2% – 19.0%')
+    expect(html).toContain('disagreement rate 0.2% – 19.0%')
+    expect(html).toContain('The disagreement rate is the share of repeated checks that disagree.')
+  })
+
+  it('says in words how the posteriors mark the finding the report settles on', () => {
+    const html = reportMarkup()
+
+    expect(html).toContain('The finding the report settles on is in bold.')
+    expect(html).not.toMatch(/▸\s*Matches the claim/)
+  })
+
+  it('counts each family of signals as signals', () => {
+    expect(reportMarkup()).toMatch(/ · 1 signal</)
+  })
+
   it('leaves out the dilution section when the run measured none', () => {
     const html = reportMarkup({ ...REPORT, verdict: { ...REPORT.verdict, epsilon: null } })
 
@@ -164,6 +197,22 @@ describe('EstimateView', () => {
     expect(html).toMatch(/Start/)
     expect(html).toMatch(/Cancel/)
   })
+
+  it('labels a warning with the word, not a mark only the sighted can read', () => {
+    const html = renderToStaticMarkup(
+      createElement(EstimateView, {
+        client,
+        created: CREATED,
+        onStarted: noop,
+        onCancelled: noop,
+      }),
+    )
+
+    expect(html).toMatch(/>Warning<\/span>\s*Plain HTTP/)
+    expect(html).not.toContain('✕')
+    expect(html).not.toContain('sr-only')
+    expect(html).not.toContain('§')
+  })
 })
 
 describe('CheckForm', () => {
@@ -183,6 +232,40 @@ describe('CheckForm', () => {
     expect(keyInput).toContain('autoComplete="off"')
     expect(keyInput).toContain('spellCheck="false"')
     expect(keyInput).toContain('value=""')
+  })
+
+  it('labels each field by name alone, with no clause numbers', () => {
+    const html = renderToStaticMarkup(
+      createElement(CheckForm, {
+        client,
+        options: OPTIONS,
+        values: initialFormValues(OPTIONS),
+        onValuesChange: noop,
+        onCreated: noop,
+      }),
+    )
+
+    expect(html).not.toMatch(/>\d+\.\d+</)
+    expect(html).not.toContain('§')
+    expect(html).toContain('>Endpoint URL<')
+  })
+})
+
+describe('Field', () => {
+  it('says in words that a value has a problem, so red is not the only sign', () => {
+    const html = renderToStaticMarkup(
+      createElement(Field, {
+        id: 'endpoint',
+        label: 'Endpoint URL',
+        problems: ['endpoint: expected >=1'],
+        children: (describedBy: string | undefined) =>
+          createElement('input', { id: 'endpoint', 'aria-describedby': describedBy }),
+      }),
+    )
+    const problem = /<p id="endpoint-problem"[^>]*>(.*?)<\/p>/.exec(html)?.[1] ?? ''
+
+    expect(html).toContain('aria-describedby="endpoint-problem"')
+    expect(problem).toMatch(/^<span[^>]*>Problem:<\/span> endpoint: expected at least 1$/)
   })
 })
 

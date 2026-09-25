@@ -86,15 +86,9 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
 
   return (
     <form ref={formRef} noValidate onSubmit={submit} aria-busy={isSubmitting} className="space-y-2">
-      <Section
-        mark="1"
-        title="Particulars of the endpoint"
-        aside="Required unless marked"
-        order={0}
-      >
+      <Section title="Particulars of the endpoint" aside="Required unless marked" order={0}>
         <Field
           id="endpoint"
-          number="1.1"
           label="Endpoint URL"
           hint="The base URL the seller gave you, such as https://api.example.com/v1."
           problems={byField.endpoint}
@@ -118,7 +112,6 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
         </Field>
         <Field
           id="api-key"
-          number="1.2"
           label="API key"
           hint="Optional. Kept in this tab’s memory only, sent once to the local daemon, and cleared from the page as soon as the estimate is ready."
           problems={byField.apiKey}
@@ -143,7 +136,6 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
         </Field>
         <Field
           id="model"
-          number="1.3"
           label="Model"
           hint="The model ID you were sold, exactly as the seller writes it."
           problems={byField.model}
@@ -164,7 +156,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
             />
           )}
         </Field>
-        <Field id="vendor" number="1.4" label="Claimed vendor" problems={byField.vendor}>
+        <Field id="vendor" label="Claimed vendor" problems={byField.vendor}>
           {(describedBy, invalid) => (
             <select
               id="vendor"
@@ -187,7 +179,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
             </select>
           )}
         </Field>
-        <Field id="protocol" number="1.5" label="Protocol" problems={byField.protocol}>
+        <Field id="protocol" label="Protocol" problems={byField.protocol}>
           {(describedBy, invalid) => (
             <select
               id="protocol"
@@ -210,7 +202,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
             </select>
           )}
         </Field>
-        <Field id="auth" number="1.6" label="Key header" problems={byField.auth}>
+        <Field id="auth" label="Key header" problems={byField.auth}>
           {(describedBy, invalid) => (
             <select
               id="auth"
@@ -235,7 +227,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
         </Field>
       </Section>
 
-      <Section mark="2" title="Profile" aside="How thorough, and how costly" order={1}>
+      <Section title="Profile" aside="How thorough, and how costly" order={1}>
         <ProfilePicker
           profiles={options.profiles}
           value={values.profile}
@@ -243,7 +235,7 @@ export function CheckForm({ client, options, values, onValuesChange, onCreated }
         />
       </Section>
 
-      <Section mark="3" title="Budget and options" aside="Optional" order={2}>
+      <Section title="Budget and options" aside="Optional" order={2}>
         <BudgetFields
           options={options}
           values={values}

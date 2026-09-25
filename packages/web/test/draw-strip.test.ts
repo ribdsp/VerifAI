@@ -12,7 +12,7 @@ describe('DrawStrip', () => {
     const html = stripMarkup({ draws: [], planned: 3 })
 
     expect(html).toContain('No draws yet; 3 to go')
-    expect(html.match(/not yet drawn/g)).toHaveLength(6)
+    expect(html.match(/aria-label="Draw \d+: not yet drawn"/g)).toHaveLength(3)
   })
 
   it('counts the draws by outcome, and what is left', () => {
@@ -49,5 +49,24 @@ describe('DrawStrip', () => {
 
     expect(html).toContain('2 agreed')
     expect(html).not.toContain('taken')
+  })
+
+  it('keys each kind of square it shows, and only those', () => {
+    const html = stripMarkup({
+      draws: [
+        { draw: 1, outcome: 'agree' },
+        { draw: 2, outcome: 'disagree' },
+      ],
+      taken: 3,
+      planned: 4,
+    })
+    const key = /<ul aria-hidden="true"[^>]*>(.*?)<\/ul>/.exec(html)?.[1] ?? ''
+    const words = [...key.matchAll(/<\/span>([^<]+)<\/li>/g)].map((match) => match[1])
+
+    expect(words).toEqual(['agreed', 'disagreed', 'taken, not yet judged', 'not yet drawn'])
+  })
+
+  it('shows no key before there is a square to key', () => {
+    expect(stripMarkup({ draws: [] })).not.toContain('<ul')
   })
 })

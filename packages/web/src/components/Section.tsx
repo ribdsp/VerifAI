@@ -1,8 +1,6 @@
-import type { CSSProperties, ReactNode } from 'react'
+import { type CSSProperties, type ReactNode, useId } from 'react'
 
 interface SectionProps {
-  /** The section mark, `2.1` and so on. */
-  readonly mark: string
   readonly title: string
   readonly aside?: ReactNode
   readonly children: ReactNode
@@ -10,9 +8,9 @@ interface SectionProps {
   readonly order?: number
 }
 
-/** A numbered section of the record, headed like a clause in a form. */
-export function Section({ mark, title, aside, children, order = 0 }: SectionProps) {
-  const headingId = `section-${mark.replaceAll('.', '-')}`
+/** A section of the record, headed by its title and ruled off from the one before. */
+export function Section({ title, aside, children, order = 0 }: SectionProps) {
+  const headingId = useId()
   return (
     <section
       aria-labelledby={headingId}
@@ -20,8 +18,7 @@ export function Section({ mark, title, aside, children, order = 0 }: SectionProp
       style={{ '--i': order } as CSSProperties}
     >
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-        <h2 id={headingId} className="flex items-baseline gap-3 text-lg font-semibold">
-          <span className="font-mono text-sm font-normal text-margin">§{mark}</span>
+        <h2 id={headingId} className="text-lg font-semibold">
           {title}
         </h2>
         {aside === undefined ? null : <div className="eyebrow">{aside}</div>}

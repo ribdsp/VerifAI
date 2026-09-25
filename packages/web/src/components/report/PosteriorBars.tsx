@@ -14,7 +14,7 @@ interface PosteriorBarsProps {
   readonly verdict: ReportVerdict
 }
 
-/** Each inferred axis's distribution as stored, with the assessed finding marked. */
+/** Each inferred axis's distribution as stored, with the assessed finding in bold. */
 export function PosteriorBars({ posteriors, verdict }: PosteriorBarsProps) {
   return (
     <div className="grid gap-x-10 gap-y-6 md:grid-cols-2">
@@ -51,7 +51,6 @@ function Bar({ label, probability, isAssessed }: BarProps) {
   return (
     <li className="grid grid-cols-[minmax(0,12rem)_1fr_3.5rem] items-center gap-2 text-sm">
       <span className={isAssessed ? 'font-semibold' : 'text-ink-soft'}>
-        {isAssessed ? '▸ ' : ''}
         {label}
         {isAssessed ? <span className="sr-only"> (the assessed finding)</span> : null}
       </span>

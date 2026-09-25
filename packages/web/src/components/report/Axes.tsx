@@ -27,7 +27,7 @@ export function Axes({ verdict }: { readonly verdict: ReportVerdict }) {
                 {findingLabel(key, finding)}
                 {key === 'consistency' && verdict.epsilon !== null ? (
                   <span className="block font-mono text-xs font-normal text-ink-soft not-italic">
-                    ε {formatInterval(verdict.epsilon.interval)}
+                    disagreement rate {formatInterval(verdict.epsilon.interval)}
                   </span>
                 ) : null}
               </td>

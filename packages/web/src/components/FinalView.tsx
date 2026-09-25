@@ -38,7 +38,7 @@ export function isEndedState(state: CheckState): state is EndedState {
 export function FinalView({ state, error, onRestart }: FinalViewProps) {
   const ending = ENDINGS[state]
   return (
-    <Section mark="8" title="No report" aside={state} order={0}>
+    <Section title="No report" aside={state} order={0}>
       <div className="space-y-4">
         <Notice tone={ending.tone} title={ending.title} role="status">
           <p>{ending.text}</p>

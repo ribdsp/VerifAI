@@ -197,9 +197,9 @@ test.describe('on a phone', () => {
     })
     expect(await widerThanScreen(page)).toEqual([])
     await expectOneMarkerEach(page)
-    // ε is data: set in capitals, it would read as the letter E.
-    await expect(page.locator('#section-R-2 + .eyebrow')).toHaveText(/^ε /, {
-      useInnerText: true,
-    })
+    // The figure is named in words, so the capitals the aside is set in cannot misread it.
+    await expect(
+      page.getByRole('region', { name: 'Routing dilution' }).locator('.eyebrow').first(),
+    ).toHaveText(/^Disagreement rate /i, { useInnerText: true })
   })
 })

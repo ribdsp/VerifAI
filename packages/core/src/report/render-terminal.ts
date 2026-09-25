@@ -61,11 +61,14 @@ export const PLAIN_STYLE: TerminalStyle = Object.freeze({
   dim: unchanged,
 })
 
-const STANCE_MARKS: Readonly<Record<Stance, string>> = Object.freeze({
-  supports: '+',
-  against: '!',
-  context: '-',
+/** Words, not marks: a lone `+` or `!` says nothing to someone who has not read the source. */
+const STANCE_WORDS: Readonly<Record<Stance, string>> = Object.freeze({
+  supports: 'for',
+  against: 'against',
+  context: 'neutral',
 })
+const STANCE_WIDTH = Math.max(...Object.values(STANCE_WORDS).map((word) => word.length))
+const STANCE_LEGEND = 'Each leans for or against the claimed model, or is neutral.'
 
 const INDENT = '  '
 const LABEL_WIDTH = 13
@@ -123,11 +126,13 @@ function findingLines(report: Report, style: TerminalStyle): string[] {
 
 function signalLines(signal: Signal, numbers: readonly number[], style: TerminalStyle): string[] {
   const stance = stanceOf(signal)
-  const mark = style[stance](STANCE_MARKS[stance])
+  const word = STANCE_WORDS[stance]
+  const lean = `${style[stance](word)}${' '.repeat(STANCE_WIDTH - word.length)}`
   const refs = numbers.map((number) => `[${number}]`).join('')
-  const pad = `${INDENT}${INDENT}  `
+  // The detail lines start under the probe id, clear of the stance column.
+  const pad = `${INDENT}${' '.repeat(STANCE_WIDTH + 2)}`
   return [
-    `${INDENT}${mark} ${plainText(`${signal.probeId} › ${signal.signalId}`)} ${style.dim(plainText(`(${signal.family}, ${signal.calibration})`))} ${refs}`,
+    `${INDENT}${lean}  ${plainText(`${signal.probeId} / ${signal.signalId}`)} ${style.dim(plainText(`(${signal.family}, ${signal.calibration})`))} ${refs}`,
     `${pad}${plainText(signal.plainLanguage)}`,
     `${pad}${style.dim('observed')} ${plainText(signal.observed)}`,
     `${pad}${style.dim('expected')} ${plainText(signal.expected)}`,
@@ -143,7 +148,7 @@ function signalsSection(report: Report, notes: Footnotes, style: TerminalStyle):
   const body = report.signals.flatMap((signal, index) =>
     signalLines(signal, notes.numbers[index] ?? [], style),
   )
-  return ['', title, ...body]
+  return ['', title, `${INDENT}${style.dim(STANCE_LEGEND)}`, ...body]
 }
 
 function skippedSection(report: Report, style: TerminalStyle): string[] {

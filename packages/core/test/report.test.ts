@@ -322,6 +322,19 @@ async function hostileReport(): Promise<Report> {
   return buildReport(input({ result: run }))
 }
 
+/** Wraps each painted run in a tag named for its style, so a test can see what was painted. */
+const tag = (name: string) => (text: string) => `<${name}>${text}</${name}>`
+const TAGGED: TerminalStyle = {
+  pass: tag('pass'),
+  caution: tag('caution'),
+  fail: tag('fail'),
+  supports: tag('supports'),
+  against: tag('against'),
+  context: tag('context'),
+  bold: tag('b'),
+  dim: tag('dim'),
+}
+
 describe('renderTerminal', () => {
   it('prints the verdict, findings, signals, gaps, sources and disclaimer', async () => {
     const text = renderTerminal(await hostileReport())
@@ -344,21 +357,35 @@ describe('renderTerminal', () => {
   })
 
   it('paints with the style it is given', async () => {
-    const tag = (name: string) => (text: string) => `<${name}>${text}</${name}>`
-    const style: TerminalStyle = {
-      pass: tag('pass'),
-      caution: tag('caution'),
-      fail: tag('fail'),
-      supports: tag('supports'),
-      against: tag('against'),
-      context: tag('context'),
-      bold: tag('b'),
-      dim: tag('dim'),
-    }
     const report = await hostileReport()
-    const text = renderTerminal(report, style)
+    const text = renderTerminal(report, TAGGED)
     expect(text).toContain(`<${report.verdict.headline}>`)
-    expect(text).toContain('<against>!</against>')
+    expect(text).toContain('<against>against</against>')
+  })
+
+  it('names which way each signal leans in words, and says what the words mean', async () => {
+    const text = renderTerminal(await hostileReport())
+    expect(text).toContain(
+      'Signals (1)\n  Each leans for or against the claimed model, or is neutral.',
+    )
+    expect(text).toMatch(/^ {2}against {2}test\/probe-\d+ \/ reading /m)
+    expect(text).not.toContain('›')
+  })
+
+  it('pads a short stance word so every probe id starts in the same column', async () => {
+    const run = result({
+      signals: [
+        signal({ llr: { identity: { 'matches-claim': 0.4 } } }),
+        signal({ llr: { identity: { 'different-vendor': 0.4 } } }),
+      ],
+    })
+    const report = await buildReport(input({ result: run }))
+    const plain = renderTerminal(report)
+
+    expect(plain).toMatch(/^ {2}for {4} {2}test\/probe-\d+ /m)
+    expect(plain).toMatch(/^ {2}against {2}test\/probe-\d+ /m)
+    // The padding stays outside the paint, so a coloured word does not carry trailing spaces.
+    expect(renderTerminal(report, TAGGED)).toMatch(/^ {2}<supports>for<\/supports> {6}test\//m)
   })
 
   it('says when private targets were allowed and when nothing was signalled', async () => {

@@ -18,8 +18,9 @@ export function EpsilonBlock({ epsilon }: { readonly epsilon: Epsilon }) {
   return (
     <div className="space-y-4">
       <p className="max-w-prose">
-        ε is the share of repeated checks that disagree. A check can be more than one request, so it
-        is not the share of single requests. {labelOf(BASIS_TEXT, epsilon.basis)}
+        The disagreement rate is the share of repeated checks that disagree. A check can be more
+        than one request, so it is not the share of single requests.{' '}
+        {labelOf(BASIS_TEXT, epsilon.basis)}
       </p>
       <DefinitionList rows={rows} />
       <DrawStrip draws={epsilon.draws} />

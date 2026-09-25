@@ -1,5 +1,5 @@
 import type { Citation, Signal } from '@verifai/core'
-import { groupSignals, safeHttpsUrl } from '../../lib/format'
+import { groupSignals, plural, safeHttpsUrl } from '../../lib/format'
 import { CALIBRATION_TEXT, labelOf } from '../../lib/labels'
 
 /** Every signal by family: what came back, what was expected, and the source's own words. */
@@ -12,7 +12,7 @@ export function Signals({ signals }: { readonly signals: readonly Signal[] }) {
       {groupSignals(signals).map((group) => (
         <section key={group.family} aria-label={group.name}>
           <h3 className="eyebrow border-b border-ink pb-1">
-            {group.name} · {group.signals.length}
+            {group.name} · {plural(group.signals.length, 'signal')}
           </h3>
           <ol className="divide-y divide-rule">
             {group.signals.map((signal) => (

@@ -70,7 +70,7 @@ describe('verifai check without a terminal', () => {
     const t = testContext()
     await runCheck([...TARGET_FLAGS, '-y', '--format', 'json'], t.context)
     expect(t.stderr.text()).toContain('Left out:')
-    expect(t.stderr.text()).toContain('Warnings:')
+    expect(t.stderr.text()).toContain('- No API key:')
     expect(JSON.stringify(t.transport.requests)).not.toContain('x-api-key')
   })
 
@@ -228,7 +228,7 @@ describe('verifai check on a terminal', () => {
   it('treats an empty key as none', async () => {
     const t = testContext({ interactive: true, answers: ['   ', true] })
     await runCheck([...TARGET_FLAGS, '--format', 'json'], t.context)
-    expect(t.prompts.notes[0]).toContain('Warnings:')
+    expect(t.prompts.notes[0]).toContain('- No API key:')
   })
 
   it.each([

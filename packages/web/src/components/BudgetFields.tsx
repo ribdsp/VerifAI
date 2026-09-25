@@ -53,7 +53,6 @@ export function BudgetFields({ options, values, problems, onChange }: BudgetFiel
       </summary>
       <Field
         id="max-requests"
-        number="3.1"
         label="Request budget"
         hint={`At most ${formatCount(options.limits.maxRequests)}. Blank keeps the profile’s budget.`}
         problems={problems.maxRequests}
@@ -62,7 +61,6 @@ export function BudgetFields({ options, values, problems, onChange }: BudgetFiel
       </Field>
       <Field
         id="max-tokens"
-        number="3.2"
         label="Token budget"
         hint={`At most ${formatCount(options.limits.maxTokens)}. Blank keeps the profile’s budget.`}
         problems={problems.maxTokens}
@@ -71,7 +69,6 @@ export function BudgetFields({ options, values, problems, onChange }: BudgetFiel
       </Field>
       <Field
         id="spread"
-        number="3.3"
         label="Spread, in minutes"
         hint={`How long to spread the routing-dilution draws over, at most ${formatCount(
           options.limits.maxSpreadMs / MS_PER_MINUTE,
@@ -81,10 +78,7 @@ export function BudgetFields({ options, values, problems, onChange }: BudgetFiel
         {numberInput('spread', 'spreadMinutes', String((profile?.spreadMs ?? 0) / MS_PER_MINUTE))}
       </Field>
       <div className="grid gap-3 py-3 sm:grid-cols-[13rem_1fr] sm:gap-x-6">
-        <span className="flex items-baseline gap-2">
-          <span className="font-mono text-xs text-ink-faint">3.4</span>
-          <span className="font-semibold">Options</span>
-        </span>
+        <span className="font-semibold">Options</span>
         <div className="space-y-2">
           <Flag
             id="allow-private"
