@@ -12,8 +12,8 @@ import { describe, expect, it } from 'vitest'
  *
  * This test exists rather than a shared config module because tsdown loads
  * `tsdown.config.ts` through a native `import`, which cannot resolve a `.js`
- * specifier to a `.ts` file on our Node 20.12 floor - the extraction was tried
- * and failed with "Cannot find module ... tsdown.shared.config.js". Duplicated
+ * specifier to a `.ts` file on the Node 20.12 floor it was tried on - the extraction
+ * failed with "Cannot find module ... tsdown.shared.config.js". Duplicated
  * settings plus an assertion is the honest version of that, and it is strictly
  * stronger: it also catches a *new* portable package that never had the guard.
  */

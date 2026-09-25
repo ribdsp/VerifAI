@@ -9,7 +9,7 @@ export default defineConfig({
   // stays in `@verifai/core`; this package exists so that `node:http`, `node:dns`
   // and `node:zlib` never have to be imported from there.
   platform: 'node',
-  target: 'node20.12',
+  target: 'node22.18',
   // Pinned so the files match the `exports` map. Inferred, platform `node`
   // emits `.mjs` and `.d.mts`, and `exports` would point at files never built.
   outExtensions: () => ({ js: '.js', dts: '.d.ts' }),

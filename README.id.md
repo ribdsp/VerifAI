@@ -121,7 +121,7 @@ pnpm run build
 node packages/cli/dist/bin.js --version
 ```
 
-Butuh Node.js ≥ 20.12. `pnpm run build` membangun semua package sesuai urutannya dan menyalin
+Butuh Node.js ≥ 22.18. `pnpm run build` membangun semua package sesuai urutannya dan menyalin
 web UI ke samping CLI; kalau salinan itu tidak ada, `verifai web` mengatakannya terus terang.
 Contoh di bawah menulis `verifai` untuk `node packages/cli/dist/bin.js`.
 

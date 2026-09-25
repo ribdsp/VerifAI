@@ -23,8 +23,10 @@ jobs:
       matrix:
         # Oldest supported and current. The core is meant to run anywhere, so a
         # syntax or API assumption that needs Node 24 must fail here, not in a
-        # user's terminal.
-        node: ['20.12', '24']
+        # user's terminal. 22.18 is the oldest the toolchain itself runs on:
+        # vitest 5 and tsdown 0.23 declare it, and rolldown finds no native
+        # binding on Node 20.
+        node: ['22.18', '24']
 
     steps:
       # Pinned to full commit SHAs: a tag can be moved to point at other code,

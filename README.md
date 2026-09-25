@@ -117,7 +117,7 @@ pnpm run build
 node packages/cli/dist/bin.js --version
 ```
 
-Requires Node.js ≥ 20.12. `pnpm run build` builds every package in order and copies the web
+Requires Node.js ≥ 22.18. `pnpm run build` builds every package in order and copies the web
 UI next to the CLI; `verifai web` says so plainly if that copy is missing. The examples below
 write `verifai` for `node packages/cli/dist/bin.js`.
 

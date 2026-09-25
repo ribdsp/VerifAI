@@ -12,7 +12,7 @@ export default defineConfig({
   dts: false,
   clean: true,
   platform: 'node',
-  target: 'node20.12',
+  target: 'node22.18',
   // Pinned rather than inferred. tsdown derives the extension from the
   // `exports` map, which a bin-only package does not have, and defaults to
   // `.mjs` - leaving `bin` pointing at a file that was never emitted, which
