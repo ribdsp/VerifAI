@@ -7,6 +7,12 @@
 
 > 🇬🇧 [Read in English](README.md)
 
+![Laporan VerifAI di web UI lokal: cap FAIL dengan confidence 95% di atas kalimat "The endpoint answered like a cheaper or older Anthropic model, not like claude-opus-5-5", lalu lima sumbu](docs/assets/web-verdict-fail.png)
+
+<sub>Pengecekan deep terhadap test fake `model-downgrade` milik repo ini sendiri, di mana Claude
+Haiku 4.5 menjawab sebagai `claude-opus-5-5`. Bukan verdict untuk provider sungguhan mana pun;
+selengkapnya di [Seperti apa sebuah pengecekan](#seperti-apa-sebuah-pengecekan).</sub>
+
 Banyak reseller menjual akses murah ke model Claude dan GPT. Sebagian jujur. Sebagian
 mengiklankan nama model mahal tapi diam-diam melayani sesuatu yang jauh lebih murah — model
 kecil dari vendor yang sama, model dari vendor lain, atau model open-weight yang dipasangi
@@ -106,6 +112,55 @@ terdengar lebih yakin dari buktinya. Apa yang diukur setiap grup probe dan alasa
 salah menyebut dirinya sendiri ([arXiv:2411.10683](https://arxiv.org/abs/2411.10683)). Tidak
 ada jalur dari self-identification ke perhitungan skor, dan itu ditegakkan lewat unit test,
 bukan lewat kesepakatan.
+
+---
+
+## Seperti apa sebuah pengecekan
+
+Semua gambar di sini adalah run sungguhan dari build repo ini, diambil dengan Playwright; gambar
+terminal adalah rekaman run `verifai check` yang diputar ulang di xterm.js dan dipotong setelah
+sinyal pertama. Tidak satu pun yang merupakan verdict untuk provider sungguhan: endpoint-nya dua
+fake dari test suite, dilayani di loopback dan dihubungi dengan key karangan, dan semua run
+memakai profil `deep`. `thin-pass-through` adalah Claude asli tanpa perantara;
+`model-downgrade` membuat Claude Haiku 4.5 menjawab sebagai `claude-opus-5-5`. Keduanya ada di
+tabel [Akurasi, yang diukur](#akurasi-yang-diukur).
+
+**Dari terminal.** `verifai check` mencetak estimasi dan bertanya dulu sebelum mengirim apa pun,
+lalu memberikan verdict, lima sumbu, dan setiap sinyal. Endpoint disebut lewat hash-nya, kecuali
+Anda memakai `--show-endpoint`.
+
+![verifai check terhadap fake model-downgrade: estimasi, 92 request dan 29.363 token terpakai, lalu FAIL dengan confidence 95,0%, temuan, dan sinyal pertama](docs/assets/cli-check-fail.png)
+
+**Tidak ada yang dikirim sebelum Anda setuju.** Web UI menghitung biaya run lebih dulu: probe
+yang direncanakan, batas atas request dan token yang boleh dipakai, dan peringatan kalau
+endpoint-nya HTTP biasa.
+
+![Estimasi: peringatan HTTP biasa, batas request dan token, dan probe yang direncanakan per grup](docs/assets/web-estimate.png)
+
+**Selama berjalan.** Progres terhadap kedua batas, setiap draw routing-dilution begitu masuk, dan
+log setiap probe.
+
+![Pengecekan yang sedang berjalan: 23 dari 24 probe selesai, meter request dan token, 9 dari 30 draw routing-dilution, dan log event](docs/assets/web-running.png)
+
+**Penjual yang jujur lolos.** Fake yang asli, dengan klaim yang sama.
+
+![Laporan untuk fake yang asli: cap PASS dengan confidence 89%, lalu lima sumbu](docs/assets/web-verdict-pass.png)
+
+**Bagaimana setiap sumbu ditimbang.** Setiap sumbu menunjukkan seberapa besar kemungkinan tiap
+temuan berdasarkan buktinya, dan temuan yang dipilih laporan dicetak tebal. Untuk fake
+downgrade, *vendor sama, model lebih murah* keluar di angka 0,912.
+
+![Probabilitas di balik sumbu identity, consistency, platform, dan translation](docs/assets/web-posteriors.png)
+
+**Setiap sinyal mengutip kata-kata vendor sendiri.** Di sini field `model` pada respons menyebut
+Claude Haiku 4.5, dan laporan mengutip dokumentasi Anthropic tentang arti field itu dan harga
+tiap model.
+
+![Satu sinyal dari bukti: apa yang teramati, apa yang diharapkan, dan dokumentasi Anthropic yang dikutip di sampingnya](docs/assets/web-evidence.png)
+
+**Di ponsel.** Laporan yang sama, pas di layar 390 piksel.
+
+<img src="docs/assets/web-phone.png" alt="Laporan FAIL di layar ponsel" width="300">
 
 ---
 

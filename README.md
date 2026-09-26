@@ -7,6 +7,12 @@
 
 > 🇮🇩 [Baca dalam Bahasa Indonesia](README.id.md)
 
+![A VerifAI report in the local web UI: a FAIL stamp at 95% confidence over the line "The endpoint answered like a cheaper or older Anthropic model, not like claude-opus-5-5", then the five axes](docs/assets/web-verdict-fail.png)
+
+<sub>A deep check against this repository's own `model-downgrade` test fake, where Claude Haiku
+4.5 answers as `claude-opus-5-5`. Not a verdict on any real provider; more in
+[What a check looks like](#what-a-check-looks-like).</sub>
+
 Resellers sell cheap access to Claude and GPT models. Some of them are honest. Some
 advertise an expensive model name and quietly serve something much cheaper — a smaller
 model from the same vendor, a model from a different vendor entirely, or an open-weight
@@ -102,6 +108,54 @@ how the measurements become a verdict is in [`docs/scoring.md`](docs/scoring.md)
 routinely misreport which model they are ([arXiv:2411.10683](https://arxiv.org/abs/2411.10683)).
 There is no path from self-identification into the score, enforced by a unit test rather
 than by convention.
+
+---
+
+## What a check looks like
+
+Every picture here is a real run of this repository's build, taken with Playwright; the
+terminal one is a recorded `verifai check` run, replayed in xterm.js and cut off after the first
+signal. None of them is a verdict on a real provider: the endpoints are two of the test
+suite's fakes, served on loopback and reached with a made-up key, and every run used the `deep`
+profile. `thin-pass-through` is genuine Claude with nothing in between; `model-downgrade` has
+Claude Haiku 4.5 answer as `claude-opus-5-5`. Both are rows in
+[Accuracy, measured](#accuracy-measured).
+
+**From a terminal.** `verifai check` prints the estimate and asks before it sends anything,
+then gives the verdict, the five axes and every signal. The endpoint is named by its hash
+unless you pass `--show-endpoint`.
+
+![verifai check against the model-downgrade fake: the estimate, 92 requests and 29,363 tokens used, then FAIL at 95.0% confidence, the findings and the first signal](docs/assets/cli-check-fail.png)
+
+**Nothing is sent until you confirm.** The web UI prices the run first: the probes it plans,
+the most requests and tokens it may spend, and a warning when the endpoint is plain HTTP.
+
+![The estimate: a plain-HTTP warning, the request and token caps, and the planned probes by group](docs/assets/web-estimate.png)
+
+**While it runs.** Progress against both caps, each routing-dilution draw as it lands, and a
+log of every probe.
+
+![A check in progress: 23 of 24 probes done, the request and token meters, 9 of 30 routing-dilution draws, and the event log](docs/assets/web-running.png)
+
+**A seller telling the truth passes.** The genuine fake, against the same claim.
+
+![The report for the genuine fake: a PASS stamp at 89% confidence, then the five axes](docs/assets/web-verdict-pass.png)
+
+**How each axis was weighed.** Every axis shows how likely each finding is, given the
+evidence, with the one the report settles on in bold. For the downgrade fake, *same vendor,
+cheaper model* comes out at 0.912.
+
+![The probabilities behind the identity, consistency, platform and translation axes](docs/assets/web-posteriors.png)
+
+**Every signal cites the vendor's own words.** Here the response's `model` field names Claude
+Haiku 4.5, and the report quotes Anthropic's documentation on what that field means and on what
+each model costs.
+
+![One signal from the evidence: what was observed, what was expected, and the Anthropic documentation quoted beside it](docs/assets/web-evidence.png)
+
+**On a phone.** The same report, fitted to a 390-pixel screen.
+
+<img src="docs/assets/web-phone.png" alt="The FAIL report on a phone screen" width="300">
 
 ---
 
