@@ -35,7 +35,7 @@ function SignalEntry({ signal }: { readonly signal: Signal }) {
         <span>{labelOf(CALIBRATION_TEXT, signal.calibration)}</span>
       </p>
       <p>{signal.plainLanguage}</p>
-      <dl className="grid gap-x-3 gap-y-1 text-sm sm:grid-cols-[7rem_1fr]">
+      <dl className="grid grid-cols-[minmax(0,1fr)] gap-x-3 gap-y-1 text-sm sm:grid-cols-[7rem_minmax(0,1fr)]">
         <dt className="eyebrow pt-0.5">Observed</dt>
         <dd className="font-mono break-words">{signal.observed}</dd>
         <dt className="eyebrow pt-0.5">Expected</dt>

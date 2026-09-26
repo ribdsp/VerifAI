@@ -9,7 +9,9 @@ export function Axes({ verdict }: { readonly verdict: ReportVerdict }) {
       <thead>
         <tr>
           <th scope="col">Axis</th>
-          <th scope="col">Question</th>
+          <th scope="col" className="hidden sm:table-cell">
+            Question
+          </th>
           <th scope="col">Finding</th>
         </tr>
       </thead>
@@ -22,8 +24,13 @@ export function Axes({ verdict }: { readonly verdict: ReportVerdict }) {
               <th scope="row" className="font-semibold whitespace-nowrap">
                 {AXES[key].axis}
               </th>
-              <td className="text-ink-soft">{AXES[key].question}</td>
+              <td className="hidden text-ink-soft sm:table-cell">{AXES[key].question}</td>
               <td className={isOpen ? 'text-ink-faint italic' : 'font-semibold'}>
+                {/* On a phone the question heads its own answer, so the table keeps two columns
+                    and the row header stays the axis alone. */}
+                <span className="block font-normal text-ink-soft not-italic sm:hidden">
+                  {AXES[key].question}
+                </span>
                 {findingLabel(key, finding)}
                 {key === 'consistency' && verdict.epsilon !== null ? (
                   <span className="block font-mono text-xs font-normal text-ink-soft not-italic">

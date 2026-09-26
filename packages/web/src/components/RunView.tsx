@@ -174,7 +174,7 @@ function EventLog({ events }: { readonly events: readonly CheckEvent[] }) {
           const line = describeEvent(event)
           const tone = TONE_MARKS[line.tone]
           return (
-            <li key={seq} className="grid grid-cols-[3.5rem_1rem_1fr] gap-2 px-3 py-1">
+            <li key={seq} className="grid grid-cols-[3.5rem_1rem_minmax(0,1fr)] gap-2 px-3 py-1">
               <span className="text-right text-ink-faint">{seq}</span>
               <span aria-hidden="true" className={tone.className}>
                 {tone.mark}

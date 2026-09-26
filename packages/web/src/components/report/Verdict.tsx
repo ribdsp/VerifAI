@@ -32,7 +32,8 @@ export function Verdict({ verdict, claimedModel }: VerdictProps) {
         <span className="font-semibold normal-case tracking-normal text-ink">{claimedModel}</span>
       </h2>
       <div className="mt-5 flex flex-wrap items-center gap-x-10 gap-y-5">
-        <p className="stamp animate-stamp text-4xl sm:text-5xl">
+        {/* Sized so the longest label, Caution, stays inside the box on a 320px phone. */}
+        <p className="stamp animate-stamp text-2xl tracking-[0.12em] min-[360px]:text-3xl sm:text-5xl sm:tracking-[0.22em]">
           <span aria-hidden="true">{display.glyph}</span>
           {display.label}
         </p>

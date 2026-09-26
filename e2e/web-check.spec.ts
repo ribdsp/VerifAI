@@ -64,6 +64,26 @@ async function widerThanScreen(page: Page): Promise<readonly string[]> {
     )
 }
 
+/**
+ * How far, in pixels, the verdict stamp reaches past its coloured box. The box
+ * sits inside the page's margins, so a stamp can spill out of it and still be
+ * on the screen.
+ */
+async function stampOverhang(page: Page): Promise<number> {
+  return page.locator('.stamp').evaluate(async (stamp) => {
+    // Measured at rest, not while the stamp is still landing at a larger scale.
+    // The landing plays once, so the wait ends; a looping animation would hold it.
+    const animations: readonly { readonly finished: Promise<unknown> }[] = stamp.getAnimations()
+    await Promise.all(animations.map((animation) => animation.finished))
+    const box = stamp.closest('section')?.getBoundingClientRect()
+    if (box === undefined) {
+      throw new Error('The stamp is not inside the verdict section.')
+    }
+    const own = stamp.getBoundingClientRect()
+    return Math.max(0, own.right - box.right, box.left - own.left)
+  })
+}
+
 /** Each disclosure draws its own ▸, so the browser's marker must not draw a second. */
 async function expectOneMarkerEach(page: Page): Promise<void> {
   const summaries = await page.locator('summary').all()
@@ -179,27 +199,37 @@ test('puts the cursor on the protocol when none can be told apart', async ({ pag
   }
 })
 
-test.describe('on a phone', () => {
-  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })
+// The narrowest phone screen in common use, and a common one wide enough for the larger stamp.
+for (const viewport of [
+  { width: 320, height: 640 },
+  { width: 390, height: 844 },
+]) {
+  test.describe(`on a phone ${viewport.width} pixels wide`, () => {
+    test.use({ viewport, isMobile: true, hasTouch: true })
 
-  test('fits the estimate and the report to the screen', async ({ page }) => {
-    test.setTimeout(RUN_MS * 2)
-    await page.goto(daemon.link)
+    test('fits the estimate and the report to the screen', async ({ page }) => {
+      test.setTimeout(RUN_MS * 2)
+      await page.goto(daemon.link)
 
-    await fillForm(page, 'standard')
-    await page.getByRole('button', { name: 'Prepare estimate' }).click()
-    await expect(page.getByRole('heading', { name: /Estimate/ })).toBeVisible()
-    expect(await widerThanScreen(page)).toEqual([])
+      await fillForm(page, 'standard')
+      await page.getByRole('button', { name: 'Prepare estimate' }).click()
+      await expect(page.getByRole('heading', { name: /Estimate/ })).toBeVisible()
+      expect(await widerThanScreen(page)).toEqual([])
 
-    await page.getByRole('button', { name: 'Start the check' }).click()
-    await expect(page.getByRole('heading', { name: /Routing dilution/ })).toBeVisible({
-      timeout: RUN_MS,
+      await page.getByRole('button', { name: 'Start the check' }).click()
+      await expect(page.getByRole('heading', { name: /Routing dilution/ })).toBeVisible({
+        timeout: RUN_MS,
+      })
+      expect(await widerThanScreen(page)).toEqual([])
+      expect(await stampOverhang(page)).toBeLessThan(1)
+      // The evidence carries nonces and header values with no place to break.
+      await page.getByText('Every signal, with what was expected').click()
+      expect(await widerThanScreen(page)).toEqual([])
+      await expectOneMarkerEach(page)
+      // The figure is named in words, so the capitals the aside is set in cannot misread it.
+      await expect(
+        page.getByRole('region', { name: 'Routing dilution' }).locator('.eyebrow').first(),
+      ).toHaveText(/^Disagreement rate /i, { useInnerText: true })
     })
-    expect(await widerThanScreen(page)).toEqual([])
-    await expectOneMarkerEach(page)
-    // The figure is named in words, so the capitals the aside is set in cannot misread it.
-    await expect(
-      page.getByRole('region', { name: 'Routing dilution' }).locator('.eyebrow').first(),
-    ).toHaveText(/^Disagreement rate /i, { useInnerText: true })
   })
-})
+}

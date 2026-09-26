@@ -34,7 +34,8 @@ export function Meter({ label, value, max, text, marker, tone = 'ink' }: MeterPr
           />
         )}
       </div>
-      <span className="font-mono text-xs whitespace-nowrap">{text}</span>
+      {/* A fixed floor on the figure's width keeps stacked meters' bars the same length. */}
+      <span className="min-w-[18ch] text-right font-mono text-xs whitespace-nowrap">{text}</span>
     </div>
   )
 }
